@@ -1,0 +1,29 @@
+{
+  "mainFile": "D:/Projects/python/ImageStitchingDemo/stitch.py", 
+  "use-tabs": false, 
+  "venv": "C:\\Users\\FoxIS\\Envs\\opencv\\Scripts\\python.exe", 
+  "relatedProjects": [], 
+  "name": "StitchingDemo", 
+  "license": "GNU General Public License v3", 
+  "url": "", 
+  "pythonPath": "C:\\Python27_x64\\python.exe", 
+  "preExecScript": "", 
+  "additional_builtins": [], 
+  "programParams": "", 
+  "indentation": 4, 
+  "PYTHONPATH": "", 
+  "supported-extensions": [
+    ".py", 
+    ".html", 
+    ".jpg", 
+    ".png", 
+    ".ui", 
+    ".css", 
+    ".json", 
+    ".js", 
+    ".ini"
+  ], 
+  "project-type": "Import from sources", 
+  "postExecScript": "", 
+  "description": "image stitching assignment"
+}
