@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys
+from sys import argv
 from multiprocessing import Process, Pool, cpu_count
 import numpy as np
 import imutils
@@ -26,11 +26,23 @@ class StitchingTask(object):
         try:
             imageA = cv2.imread(self.image1)
             imageB = cv2.imread(self.image2)
+
+            if hasattr(self, 'drawInputs'):
+                self.drawInputs(imageA, imageB)
+
             if imageA.shape[0] < imageB.shape[0]:
                 imageA, imageB = imageB, imageA
 
+            scale_width = imageA.shape[1] / imageB.shape[1]
+            scale_height = imageA.shape[0] / imageB.shape[0]
+            scale = min(scale_width, scale_height) # percent of original size
+            width = int(imageB.shape[1] * scale)
+            height = int(imageB.shape[0] * scale)
+            dim = (width, height)
+            imageB = cv2.resize(imageB, dim, interpolation=cv2.INTER_AREA)
+
             result = self.stitch(imageA, imageB)
-            #cv2.imwrite()
+            cv2.imwrite(self.result, result)
         except StitchingException as e:
             print "Stitching was not possible due to: ", str(e)
         except Exception as e:
@@ -57,16 +69,23 @@ class StitchingTask(object):
 
         matches, H, status = M
 
+        #TODO calculate resulting image size
+        # create RGBA image
+        # split RGB image
+        # merge
+
         # otherwise, apply a perspective warp to stitch the images
         # together
-        result = cv2.warpPerspective(imageA, H, (imageA.shape[1] + imageB.shape[1], imageA.shape[0]))
-        result[0:imageB.shape[0], 0:imageB.shape[1]] = imageB
+        result = cv2.warpPerspective(imageA, H, (imageA.shape[1], imageA.shape[0]))
+        rgba = cv2.cvtColor(result, cv2.COLOR_RGB2RGBA)
+        bw = cv2.cvtColor(imageB, cv2.COLOR_RGB2GRAY)
+        rgba[0:imageB.shape[0], 0:imageB.shape[1], 3] = bw
 
-        if getattr(self, 'drawMatches'):
-            self.drawMatches(imageA, imageB, kpsA, kpsB, matches, status, result)
+        if hasattr(self, 'drawMatches'):
+            self.drawMatches(imageA, imageB, kpsA, kpsB, matches, status, rgba)
 
         # return the stitched image
-        return result
+        return rgba
 
     def detectAndDescribe(self, image):
         # detect and extract features from the image
@@ -111,16 +130,18 @@ class StitchingTask(object):
 
 class StitchingTestTask(StitchingTask):
     """
-    Simple test to see if images are loaded and in what order
+    Simple test to see if images are loaded and in what order by displaying them
     """
     def stitch(self, imageA, imageB, ratio=0.75, reprojThresh=4.0):
         print "First image shape:", imageA.shape
         print "Second image shape:", imageB.shape
         print "saved image name:", self.result
         super(StitchingTestTask, self).stitch(imageA, imageB, ratio, reprojThresh)
-        raise StitchingException("This is just a test, no image generated.")
+        cv2.waitKey(0)
 
     def drawMatches(self, imageA, imageB, kpsA, kpsB, matches, status, result):
+        print "Result image shape:", result.shape
+
         # initialize the output visualization image
         (hA, wA) = imageA.shape[:2]
         (hB, wB) = imageB.shape[:2]
@@ -138,11 +159,12 @@ class StitchingTestTask(StitchingTask):
                 ptB = (int(kpsB[trainIdx][0]) + wA, int(kpsB[trainIdx][1]))
                 cv2.line(vis, ptA, ptB, (0, 255, 0), 1)
 
-        cv2.imshow("Image A", imageA)
-        cv2.imshow("Image B", imageB)
         cv2.imshow("Keypoint Matches", vis)
         cv2.imshow("Result", result)
-        cv2.waitKey(0)
+
+    def drawInputs(self, imageA, imageB):
+        cv2.imshow("Image A", imageA)
+        cv2.imshow("Image B", imageB)
 
 
 def caller_helper(worker):
@@ -168,11 +190,14 @@ def main(args, test=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv[1:]) < 2 or len(sys.argv[1:]) % 2:
+    fn = 2 if len(argv) > 1 and argv[1] == 'test' else 1
+
+    if len(argv[fn:]) < 2 or len(argv[fn:]) % 2:
         print "Number of arguments must be even and not less than 2."
         print "usage:"
-        print "stitch.py <first_image_path> <second_image_path> ..."
+        print "stitch.py [test] <first_image_path> <second_image_path> ..."
         print "The resulting image will be saved to <first_image_path>_<second_image_path>.png image into current directory"
+        print "if the first argument is test, then the images will be displayed."
         exit(1)
 
-    main(sys.argv[1:], test=True)
+    main(argv[fn:], test=fn == 2)
