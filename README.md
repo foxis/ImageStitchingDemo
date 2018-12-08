@@ -1,7 +1,7 @@
 # ImageStitchingDemo
 Created as an interview assignment.
 
-==Usage==
+# Usage
 Number of arguments must be even and not less than 2.
 usage:
 stitch.py [test] <first_image_path> <second_image_path> ...
@@ -9,8 +9,8 @@ stitch.py [test] <first_image_path> <second_image_path> ...
         If the first argument is test, then the images will be displayed.
 	It is possible to provide multiple pairs of images which will be stitched in parallel(depends on the cpu core count)
 
-==Method of operation==
-Assumptions: 
+# Method of operation
+## Assumptions: 
  * both images are RGB
  * one image is larger than the other - usually RGB is smaller than IR
  * imageA will be the largest one
@@ -18,15 +18,15 @@ Assumptions:
  * FOV of both cameras are relatively similar. Otherwise some data might be missing due to larger misalignment
  * Image with higher resolution will be alligned relative to the smaller one
 
-Algorithm:
+## Algorithm:
 
-# Find keypoints using SIFT/ORB features
-# Find keypoint matches 
-# Calculate homography matrix from that
-# Do perspective warp on imageA
-# Convert it to RGBA
-# Add alpha channel using imageB
-# Save result image as PNG
+1 Find keypoints using SIFT/ORB features
+2 Find keypoint matches 
+3 Calculate homography matrix from that
+4 Do perspective warp on imageA
+5 Convert it to RGBA
+6 Add alpha channel using imageB
+7 Save result image as PNG
 
 If test is provided as first argument - display intermediate images on screen
 
