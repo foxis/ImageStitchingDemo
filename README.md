@@ -7,7 +7,7 @@ usage:
 stitch.py [test] <first_image_path> <second_image_path> ...
 	The resulting image will be saved to <first_image_path>_<second_image_path>.png image into current directory
         If the first argument is test, then the images will be displayed.
-
+	It is possible to provide multiple pairs of images which will be stitched in parallel(depends on the cpu core count)
 
 ==Method of operation==
 Assumptions: 
