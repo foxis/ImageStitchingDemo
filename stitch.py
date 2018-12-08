@@ -18,9 +18,15 @@ class StitchingTask(object):
         the result image. Saves the image.
     """
 
-    def __init__(self, images, result):
+    def __init__(self, images, result, use_sift=False):
+        """
+        :param images: a tuple of two paths to images to stitch
+        :param result: path to the resulting image
+        :param use_sift: Will use SIFT features if True and ORB otherwise
+        """
         self.image1, self.image2 = images
         self.result = result
+        self.use_sift = use_sift
 
     def run(self):
         try:
@@ -69,11 +75,6 @@ class StitchingTask(object):
 
         matches, H, status = M
 
-        #TODO calculate resulting image size
-        # create RGBA image
-        # split RGB image
-        # merge
-
         # otherwise, apply a perspective warp to stitch the images
         # together
         result = cv2.warpPerspective(imageA, H, (imageA.shape[1], imageA.shape[0]))
@@ -89,8 +90,12 @@ class StitchingTask(object):
 
     def detectAndDescribe(self, image):
         # detect and extract features from the image
-        descriptor = cv2.xfeatures2d.SIFT_create()
-        (kps, features) = descriptor.detectAndCompute(image, None)
+        if self.use_sift:
+            descriptor = cv2.xfeatures2d.SIFT_create()
+            kps, features = descriptor.detectAndCompute(image, None)
+        else:
+            descriptor = cv2.ORB_create(nfeatures=10000, scoreType=cv2.ORB_FAST_SCORE)
+            kps, features = descriptor.detectAndCompute(image, np.array([]))
 
         # convert the keypoints from KeyPoint objects to NumPy
         # arrays
