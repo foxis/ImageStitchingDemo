@@ -20,13 +20,13 @@ stitch.py [test] <first_image_path> <second_image_path> ...
 
 ## Algorithm:
 
-1 Find keypoints using SIFT/ORB features
-2 Find keypoint matches 
-3 Calculate homography matrix from that
-4 Do perspective warp on imageA
-5 Convert it to RGBA
-6 Add alpha channel using imageB
-7 Save result image as PNG
+1. Find keypoints using SIFT/ORB features
+2. Find keypoint matches 
+3. Calculate homography matrix from that
+4. Do perspective warp on imageA
+5. Convert it to RGBA
+6. Add alpha channel using imageB
+7. Save result image as PNG
 
 If test is provided as first argument - display intermediate images on screen
 
